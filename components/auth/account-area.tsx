@@ -8,11 +8,11 @@ import { useState } from "react";
 
 export function AccountArea() {
   const { t } = useI18n();
-  const { user, requiresAuth, signOut } = useAuth();
+  const { user, requiresAuth, status, signOut } = useAuth();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
-  if (!requiresAuth || !user) return null;
+  if (!requiresAuth || status !== "authenticated" || !user) return null;
 
   async function onSignOut() {
     setBusy(true);

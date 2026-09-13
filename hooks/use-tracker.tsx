@@ -10,6 +10,7 @@ import {
 import type { TrackerBackup } from "@/lib/backup";
 import { getRepository, resetRepository } from "@/lib/data";
 import type { TrackerRepository, TrackerSnapshot } from "@/lib/data/types";
+import { isMissingAuthSession } from "@/lib/supabase/session";
 import type {
   ApplicationEventInput,
   ApplicationInput,
@@ -36,6 +37,17 @@ const emptySnapshot = (): TrackerSnapshot => ({
   events: [],
   applicationSnapshots: [],
 });
+
+function isEmptySnapshot(snapshot: TrackerSnapshot) {
+  return (
+    snapshot.applications.length === 0 &&
+    snapshot.categories.length === 0 &&
+    snapshot.companies.length === 0 &&
+    snapshot.tags.length === 0 &&
+    snapshot.events.length === 0 &&
+    snapshot.applicationSnapshots.length === 0
+  );
+}
 
 interface TrackerContextValue {
   ready: boolean;
@@ -100,32 +112,56 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!auth.ready || auth.configError) {
-      return;
-    }
-    if (auth.requiresAuth && !auth.user) {
-      resetRepository();
+    if (auth.configError || !auth.ready || auth.status === "initializing") {
       return;
     }
 
     let active = true;
-    (async () => {
+    const signedOut =
+      auth.requiresAuth && (auth.status !== "authenticated" || !auth.user);
+
+    void Promise.resolve().then(async () => {
+      if (!active) return;
+
+      if (signedOut) {
+        resetRepository();
+        setSnapshot((current) =>
+          isEmptySnapshot(current) ? current : emptySnapshot()
+        );
+        setLoadError(false);
+        setReady(false);
+        return;
+      }
+
+      setLoadError(false);
+      setReady(false);
+
+      let settled = false;
       try {
         await refresh();
+        settled = true;
       } catch (error) {
         console.error(error);
-        if (active) {
-          setSnapshot(emptySnapshot());
-          setLoadError(true);
+        if (!active) return;
+        if (isMissingAuthSession(error)) {
+          setSnapshot((current) =>
+            isEmptySnapshot(current) ? current : emptySnapshot()
+          );
+          setLoadError(false);
+          return;
         }
+        setSnapshot(emptySnapshot());
+        setLoadError(true);
+        settled = true;
       } finally {
-        if (active) setReady(true);
+        if (active && settled) setReady(true);
       }
-    })();
+    });
+
     return () => {
       active = false;
     };
-  }, [auth.configError, auth.ready, auth.requiresAuth, auth.user, refresh]);
+  }, [auth.configError, auth.ready, auth.requiresAuth, auth.status, auth.user, refresh]);
 
   const run = useCallback(
     async function runOperation<T>(

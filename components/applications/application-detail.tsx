@@ -43,7 +43,11 @@ export function ApplicationDetailPage() {
   const [removing, setRemoving] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  if (loadError && mounted) {
+  if (!ready || !mounted) {
+    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
+  }
+
+  if (loadError) {
     return (
       <CloudMessage
         titleKey="cloudUnavailable"
@@ -51,10 +55,6 @@ export function ApplicationDetailPage() {
         onRetry={() => void refresh()}
       />
     );
-  }
-
-  if (!ready || !mounted) {
-    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   }
 
   if (!application) {

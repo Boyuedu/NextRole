@@ -117,16 +117,6 @@ export function ApplicationsPage() {
 
   const empty = emptyStateMessage(filters, search, t, applications.length);
 
-  if (loadError && mounted) {
-    return (
-      <CloudMessage
-        titleKey="cloudUnavailable"
-        descriptionKey="cloudUnavailableDescription"
-        onRetry={() => void refresh()}
-      />
-    );
-  }
-
   if (!ready || !mounted) {
     return (
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -135,6 +125,16 @@ export function ApplicationsPage() {
         </div>
         <p className="text-sm text-muted-foreground">{t("loadingApplications")}</p>
       </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <CloudMessage
+        titleKey="cloudUnavailable"
+        descriptionKey="cloudUnavailableDescription"
+        onRetry={() => void refresh()}
+      />
     );
   }
 

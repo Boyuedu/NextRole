@@ -41,7 +41,11 @@ export function SettingsPage() {
     deleteCompany,
   } = useTracker();
 
-  if (loadError && mounted) {
+  if (!ready || !mounted) {
+    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
+  }
+
+  if (loadError) {
     return (
       <CloudMessage
         titleKey="cloudUnavailable"
@@ -49,10 +53,6 @@ export function SettingsPage() {
         onRetry={() => void refresh()}
       />
     );
-  }
-
-  if (!ready || !mounted) {
-    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   }
 
   const regions = sortCategories(

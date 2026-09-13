@@ -17,7 +17,7 @@ import { useState, type ReactNode } from "react";
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const pathname = usePathname();
-  const { ready, requiresAuth, configError, user } = useAuth();
+  const { ready, requiresAuth, configError, status, user } = useAuth();
   const [open, setOpen] = useState(false);
 
   if (configError) {
@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (!ready) {
+  if (!ready || status === "initializing") {
     return (
       <div className="flex min-h-svh items-center justify-center">
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (requiresAuth && !user) {
+  if (requiresAuth && (status !== "authenticated" || !user)) {
     return <>{children}</>;
   }
 

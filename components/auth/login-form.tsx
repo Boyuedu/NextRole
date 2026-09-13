@@ -12,7 +12,7 @@ import { useEffect, useState, type FormEvent } from "react";
 
 export function LoginForm() {
   const { t } = useI18n();
-  const { signIn, requiresAuth, ready, user } = useAuth();
+  const { signIn, requiresAuth, ready, status, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -22,17 +22,18 @@ export function LoginForm() {
   const nextPath = safeNextPath(searchParams.get("next"));
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || status === "initializing") return;
     if (!requiresAuth) {
       router.replace("/");
       return;
     }
-    if (user) {
+    if (status === "authenticated" && user) {
       router.replace(nextPath);
+      router.refresh();
     }
-  }, [nextPath, ready, requiresAuth, router, user]);
+  }, [nextPath, ready, requiresAuth, router, status, user]);
 
-  if (!requiresAuth || user) {
+  if (!requiresAuth || status === "authenticated" || user) {
     return null;
   }
 
@@ -42,8 +43,6 @@ export function LoginForm() {
     setSubmitting(true);
     try {
       await signIn(email, password);
-      router.replace(nextPath);
-      router.refresh();
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "";
       setError(
