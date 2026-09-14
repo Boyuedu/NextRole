@@ -12,7 +12,7 @@ import {
 import { useI18n } from "@/hooks/use-i18n";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "lucide-react";
-import { useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 
 const NONE = "__none__";
@@ -27,6 +27,9 @@ export function LabeledSelect({
   allowEmpty = true,
   className,
   triggerClassName,
+  size = "default",
+  renderOption,
+  renderTrigger,
   id,
   disabled,
   createLabel,
@@ -41,6 +44,12 @@ export function LabeledSelect({
   allowEmpty?: boolean;
   className?: string;
   triggerClassName?: string;
+  size?: "sm" | "default";
+  renderOption?: (option: { id: string; name: string }) => ReactNode;
+  renderTrigger?: (
+    selected: { id: string; name: string } | null,
+    label: string
+  ) => ReactNode;
   id?: string;
   disabled?: boolean;
   createLabel?: string;
@@ -149,10 +158,17 @@ export function LabeledSelect({
     >
       <SelectTrigger
         id={id}
+        size={size}
         aria-label={ariaLabel ?? placeholder}
         className={cn("w-full", className, triggerClassName)}
       >
-        <span className="flex-1 truncate text-left">{label}</span>
+        {renderTrigger ? (
+          <span className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+            {renderTrigger(selected ?? null, label)}
+          </span>
+        ) : (
+          <span className="flex-1 truncate text-left">{label}</span>
+        )}
       </SelectTrigger>
       <SelectContent alignItemWithTrigger={false} align="start">
         {allowEmpty ? (
@@ -160,7 +176,7 @@ export function LabeledSelect({
         ) : null}
         {options.map((option) => (
           <SelectItem key={option.id} value={option.id}>
-            {option.name}
+            {renderOption ? renderOption(option) : option.name}
           </SelectItem>
         ))}
         {canCreate ? (

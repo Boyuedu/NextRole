@@ -1,6 +1,7 @@
 "use client";
 
 import { LabeledSelect } from "@/components/applications/category-selector";
+import { StageSelect } from "@/components/applications/stage-select";
 import { TagInput } from "@/components/applications/tag-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useTracker } from "@/hooks/use-tracker";
 import { labeledCategoryOptions, findCategoryByTypedName } from "@/lib/classifications";
 import { findCompanyByName, sortCompanies } from "@/lib/companies";
-import { DEFAULT_STAGES, JOB_TYPES, getStatusForStage } from "@/lib/constants";
+import { JOB_TYPES, getStatusForStage } from "@/lib/constants";
 import type { ApplicationInput, ApplicationSection, CategoryType } from "@/types";
 import type { MessageKey } from "@/locales/en";
 import Link from "next/link";
@@ -215,27 +216,19 @@ export function ApplicationForm({
         </div>
         <div className="grid gap-1.5">
           <Label>{t("stage")}</Label>
-          <LabeledSelect
-            value={value.stage}
+          <StageSelect
+            stage={value.stage}
+            className="w-full"
+            size="default"
+            triggerClassName="max-w-none"
+            disabled={pending}
             onChange={(stage) => {
-              const nextStage = stage ?? "Saved";
               setValue((current) => ({
                 ...current,
-                stage: nextStage,
-                status: getStatusForStage(nextStage),
+                stage,
+                status: getStatusForStage(stage),
               }));
             }}
-            options={[
-              ...DEFAULT_STAGES.map((stage) => ({
-                id: stage,
-                name: option("stages", stage),
-              })),
-              ...(value.stage &&
-              !(DEFAULT_STAGES as readonly string[]).includes(value.stage)
-                ? [{ id: value.stage, name: value.stage }]
-                : []),
-            ]}
-            allowEmpty={false}
           />
         </div>
         <div className="grid gap-1.5">

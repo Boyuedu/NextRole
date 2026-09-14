@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/hooks/use-i18n";
 import { useTracker } from "@/hooks/use-tracker";
 import { categoryLabel, sortCategories } from "@/lib/classifications";
-import { buildListHref, hasListFilters, parseGroupByCompany, parseListQuery } from "@/lib/filters";
+import { buildListHref, hasListFilters, parseListQuery } from "@/lib/filters";
 import { cn } from "@/lib/utils";
 import {
   ArchiveIcon,
@@ -46,8 +46,6 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const filters = parseListQuery(searchParams);
-  const groupByCompany = parseGroupByCompany(searchParams);
-  const listExtras = { groupByCompany };
   const onHome = pathname === "/";
   const onSettings = pathname.startsWith("/settings");
   const regions = sortCategories(
@@ -94,13 +92,13 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
         <SidebarSection title={t("views")} english={locale === "en"}>
           <NavLink
-            href={buildListHref({}, listExtras)}
+            href={buildListHref({})}
             label={t("all")}
             active={unfilteredHome}
             onClick={onNavigate}
           />
           <NavLink
-            href={buildListHref({ status: "active" }, listExtras)}
+            href={buildListHref({ status: "active" })}
             label={t("active")}
             active={
               onHome &&
@@ -112,7 +110,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             onClick={onNavigate}
           />
           <NavLink
-            href={buildListHref({ status: "ended" }, listExtras)}
+            href={buildListHref({ status: "ended" })}
             label={t("ended")}
             active={
               onHome &&
@@ -134,7 +132,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             regions.map((category) => (
               <NavLink
                 key={category.id}
-                href={buildListHref({ regionId: category.id }, listExtras)}
+                href={buildListHref({ regionId: category.id })}
                 label={category.name}
                 active={
                   onHome &&
@@ -156,7 +154,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             functions.map((category) => (
               <NavLink
                 key={category.id}
-                href={buildListHref({ functionId: category.id }, listExtras)}
+                href={buildListHref({ functionId: category.id })}
                 label={categoryLabel(category, option)}
                 active={
                   onHome &&
@@ -171,7 +169,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
         <div className="mt-5">
           <NavLink
-            href={buildListHref({ archived: true }, listExtras)}
+            href={buildListHref({ archived: true })}
             label={t("archived")}
             icon={<ArchiveIcon className="size-4" />}
             active={onHome && filters.archived}

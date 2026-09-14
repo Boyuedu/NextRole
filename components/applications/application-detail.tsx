@@ -104,7 +104,7 @@ export function ApplicationDetailPage() {
                   {functionName}
                 </ClassificationChip>
               ) : null}
-              <StageBadge stage={application.stage} status={application.status} />
+              <StageBadge stage={application.stage} />
               <StatusBadge status={application.status} />
             </div>
             {application.tagIds.length > 0 ? (
@@ -209,7 +209,7 @@ export function ApplicationDetailPage() {
           />
           <DetailItem
             label={t("currentStage")}
-            value={option("stages", application.stage)}
+            value={<StageBadge stage={application.stage} />}
           />
           <DetailItem
             label={t("status")}

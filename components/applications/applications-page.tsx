@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/applications/search-bar";
 import { StatsBar } from "@/components/applications/stats-bar";
 import { CloudMessage } from "@/components/auth/cloud-message";
 import { Button } from "@/components/ui/button";
+import { useApplicationsGrouping } from "@/hooks/use-applications-grouping";
 import { useI18n } from "@/hooks/use-i18n";
 import { useIsClient } from "@/hooks/use-is-client";
 import { useTracker } from "@/hooks/use-tracker";
@@ -21,7 +22,8 @@ import {
   parseListQuery,
   sortApplications,
 } from "@/lib/filters";
-import { PlusIcon } from "lucide-react";
+import { persistApplicationsGrouping } from "@/lib/preferences";
+import { CheckIcon, PlusIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -32,9 +34,9 @@ export function ApplicationsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { applications, categories, tags, ready, loadError, refresh, createApplication } = useTracker();
+  const { groupByCompany, setGroupByCompany } = useApplicationsGrouping();
   const [sheetOpen, setSheetOpen] = useState(false);
   const filters = parseListQuery(searchParams);
-  const groupByCompany = parseGroupByCompany(searchParams);
   const [search, setSearch] = useState(filters.search);
   const [searchFromUrl, setSearchFromUrl] = useState(filters.search);
   if (filters.search !== searchFromUrl) {
@@ -62,17 +64,23 @@ export function ApplicationsPage() {
     const tagsMissing = nextTagIds.length !== filters.tagIds.length;
     if (!regionMissing && !functionMissing && !tagsMissing) return;
     router.replace(
-      buildListHref(
-        {
-          ...filters,
-          regionId: regionMissing ? null : filters.regionId,
-          functionId: functionMissing ? null : filters.functionId,
-          tagIds: nextTagIds,
-        },
-        { groupByCompany }
-      )
+      buildListHref({
+        ...filters,
+        regionId: regionMissing ? null : filters.regionId,
+        functionId: functionMissing ? null : filters.functionId,
+        tagIds: nextTagIds,
+      })
     );
-  }, [categories, filters, groupByCompany, ready, router, tags]);
+  }, [categories, filters, ready, router, tags]);
+
+  useEffect(() => {
+    if (!parseGroupByCompany(searchParams)) return;
+    persistApplicationsGrouping("company");
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete("group");
+    const query = next.toString();
+    router.replace(query ? `/?${query}` : "/");
+  }, [router, searchParams]);
 
   const visible = useMemo(
     () =>
@@ -149,7 +157,7 @@ export function ApplicationsPage() {
             variant="outline"
             onClick={() => {
               setSearch("");
-              router.push(buildListHref({}, { groupByCompany }));
+              router.push(buildListHref({}));
             }}
           >
             {t("clearFilters")}
@@ -163,16 +171,11 @@ export function ApplicationsPage() {
         <SearchBar value={search} onChange={setSearch} />
         <Button
           className="shrink-0"
-          variant={groupByCompany ? "default" : "outline"}
-          onClick={() =>
-            router.push(
-              buildListHref(
-                { ...filters, search },
-                { groupByCompany: !groupByCompany }
-              )
-            )
-          }
+          variant={groupByCompany ? "secondary" : "outline"}
+          aria-pressed={groupByCompany}
+          onClick={() => setGroupByCompany(!groupByCompany)}
         >
+          {groupByCompany ? <CheckIcon data-icon="inline-start" /> : null}
           {t("groupByCompany")}
         </Button>
         <Button className="shrink-0" onClick={() => setSheetOpen(true)}>
@@ -184,7 +187,6 @@ export function ApplicationsPage() {
       <FilterBar
         filters={filters}
         search={search}
-        groupByCompany={groupByCompany}
       />
 
       <ApplicationTable

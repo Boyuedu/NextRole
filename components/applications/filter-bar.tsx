@@ -1,6 +1,7 @@
 "use client";
 
 import { LabeledSelect } from "@/components/applications/category-selector";
+import { StageSelect } from "@/components/applications/stage-select";
 import { TagPill } from "@/components/applications/tag-pill";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -11,7 +12,6 @@ import {
 import { useI18n } from "@/hooks/use-i18n";
 import { useTracker } from "@/hooks/use-tracker";
 import { labeledCategoryOptions } from "@/lib/classifications";
-import { DEFAULT_STAGES } from "@/lib/constants";
 import { buildListHref } from "@/lib/filters";
 import type { ApplicationListFilters } from "@/types";
 import { useRouter } from "next/navigation";
@@ -19,11 +19,9 @@ import { useRouter } from "next/navigation";
 export function FilterBar({
   filters,
   search,
-  groupByCompany = false,
 }: {
   filters: ApplicationListFilters;
   search: string;
-  groupByCompany?: boolean;
 }) {
   const { t, option } = useI18n();
   const router = useRouter();
@@ -34,14 +32,11 @@ export function FilterBar({
 
   function update(next: Partial<ApplicationListFilters>) {
     router.push(
-      buildListHref(
-        {
-          ...filters,
-          search,
-          ...next,
-        },
-        { groupByCompany }
-      )
+      buildListHref({
+        ...filters,
+        search,
+        ...next,
+      })
     );
   }
 
@@ -64,16 +59,14 @@ export function FilterBar({
           emptyLabel={t("allFunctions")}
           triggerClassName="h-8"
         />
-        <LabeledSelect
-          aria-label={t("stage")}
-          value={filters.stage}
-          onChange={(stage) => update({ stage })}
-          options={DEFAULT_STAGES.map((stage) => ({
-            id: stage,
-            name: option("stages", stage),
-          }))}
+        <StageSelect
+          stage={filters.stage ?? ""}
+          allowEmpty
           emptyLabel={t("stage")}
-          triggerClassName="h-8"
+          onChange={(stage) => update({ stage: stage || null })}
+          className="w-full"
+          size="default"
+          triggerClassName="max-w-none"
         />
         <LabeledSelect
           aria-label={t("status")}

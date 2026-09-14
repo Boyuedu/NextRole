@@ -83,10 +83,7 @@ export function parseGroupByCompany(params: URLSearchParams) {
   return params.get("group") === "company";
 }
 
-export function buildListHref(
-  filters: Partial<ApplicationListFilters>,
-  extras?: { groupByCompany?: boolean }
-) {
+export function buildListHref(filters: Partial<ApplicationListFilters>) {
   const params = new URLSearchParams();
   if (filters.search) params.set("q", filters.search);
   if (filters.status) params.set("status", filters.status);
@@ -97,7 +94,6 @@ export function buildListHref(
   if (filters.tagIds && filters.tagIds.length > 0) {
     params.set("tags", filters.tagIds.join(","));
   }
-  if (extras?.groupByCompany) params.set("group", "company");
   const query = params.toString();
   return query ? `/?${query}` : "/";
 }

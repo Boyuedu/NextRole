@@ -7,9 +7,11 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useTracker } from "@/hooks/use-tracker";
 import { applicationFunctionLabel } from "@/lib/classifications";
 import { formatShortDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { Application } from "@/types";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, type MouseEvent } from "react";
 import { toast } from "sonner";
 
 async function changeStage(
@@ -30,6 +32,31 @@ async function changeStage(
   }
 }
 
+function isInteractiveTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(
+      target.closest(
+        "a, button, input, textarea, select, [role='combobox'], [data-slot='select-trigger']"
+      )
+    )
+  );
+}
+
+function useApplicationHref(applicationId: string) {
+  const router = useRouter();
+  const href = `/applications/${applicationId}`;
+
+  function openDetail(event: MouseEvent<HTMLElement>) {
+    if (event.defaultPrevented || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (isInteractiveTarget(event.target)) return;
+    router.push(href);
+  }
+
+  return { href, openDetail };
+}
+
 export function ApplicationRow({
   application,
   hideCompany = false,
@@ -40,12 +67,15 @@ export function ApplicationRow({
   const { t, locale, option } = useI18n();
   const { setStage, categories } = useTracker();
   const [pending, setPending] = useState(false);
-  const href = `/applications/${application.id}`;
+  const { href, openDetail } = useApplicationHref(application.id);
   const functionName =
     applicationFunctionLabel(application, categories, option) || t("unassigned");
 
   return (
-    <tr className="border-b border-border last:border-0 hover:bg-zinc-50">
+    <tr
+      className="cursor-pointer border-b border-border last:border-0 hover:bg-zinc-50"
+      onClick={openDetail}
+    >
       {hideCompany ? null : (
         <td className="max-w-[180px] px-4 py-2.5 font-medium text-foreground">
           <Link
@@ -60,7 +90,10 @@ export function ApplicationRow({
       <td className="max-w-[240px] px-4 py-2.5 text-zinc-700">
         <Link
           href={href}
-          className="block truncate hover:underline"
+          className={cn(
+            "block truncate hover:underline",
+            hideCompany && "font-medium text-foreground"
+          )}
           title={application.position}
         >
           {application.position}
@@ -82,7 +115,7 @@ export function ApplicationRow({
       <td className="px-4 py-2.5 whitespace-nowrap text-zinc-600">
         {formatShortDate(application.appliedDate, locale)}
       </td>
-      <td className="px-4 py-2.5">
+      <td className="cursor-auto px-4 py-2.5">
         <StageSelect
           stage={application.stage}
           disabled={pending}
@@ -108,12 +141,15 @@ export function ApplicationCard({
   const { t, locale, option } = useI18n();
   const { setStage, categories } = useTracker();
   const [pending, setPending] = useState(false);
-  const href = `/applications/${application.id}`;
+  const { href, openDetail } = useApplicationHref(application.id);
   const functionName =
     applicationFunctionLabel(application, categories, option) || t("unassigned");
 
   return (
-    <div className="rounded-xl border border-border bg-white p-4 hover:bg-zinc-50">
+    <div
+      className="cursor-pointer rounded-xl border border-border bg-white p-4 hover:bg-zinc-50"
+      onClick={openDetail}
+    >
       <div className="flex items-start justify-between gap-3">
         <Link href={href} className="min-w-0">
           {hideCompany ? null : (
@@ -125,11 +161,12 @@ export function ApplicationCard({
             </div>
           )}
           <div
-            className={
+            className={cn(
+              "truncate",
               hideCompany
-                ? "truncate font-medium text-foreground"
-                : "mt-0.5 truncate text-sm text-zinc-600"
-            }
+                ? "font-medium text-foreground hover:underline"
+                : "mt-0.5 text-sm text-zinc-600 hover:underline"
+            )}
             title={application.position}
           >
             {application.position}
@@ -145,7 +182,7 @@ export function ApplicationCard({
         <span>·</span>
         <span>{formatShortDate(application.appliedDate, locale)}</span>
       </div>
-      <div className="mt-3">
+      <div className="mt-3 cursor-auto">
         <StageSelect
           stage={application.stage}
           disabled={pending}
