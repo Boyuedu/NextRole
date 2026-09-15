@@ -25,7 +25,8 @@ async function changeStage(
   try {
     await setStage(id, stage);
     toast.success(t("stageUpdated"));
-  } catch {
+  } catch (error) {
+    console.error("Stage update failed", error);
     toast.error(t("failedToSaveApplication"));
   } finally {
     setPending(false);

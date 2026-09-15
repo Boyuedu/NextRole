@@ -6,6 +6,7 @@ import { useI18n } from "@/hooks/use-i18n";
 import { DEFAULT_STAGES } from "@/lib/constants";
 import { getStageStyle } from "@/lib/stage-style";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 export function StageSelect({
   stage,
@@ -27,15 +28,18 @@ export function StageSelect({
   size?: "sm" | "default";
 }) {
   const { t, option } = useI18n();
-  const options = [
-    ...DEFAULT_STAGES.map((value) => ({
-      id: value,
-      name: option("stages", value),
-    })),
-    ...(stage && !(DEFAULT_STAGES as readonly string[]).includes(stage)
-      ? [{ id: stage, name: option("stages", stage) || stage }]
-      : []),
-  ];
+  const options = useMemo(
+    () => [
+      ...DEFAULT_STAGES.map((value) => ({
+        id: value,
+        name: option("stages", value),
+      })),
+      ...(stage && !(DEFAULT_STAGES as readonly string[]).includes(stage)
+        ? [{ id: stage, name: option("stages", stage) || stage }]
+        : []),
+    ],
+    [option, stage]
+  );
   const selectedStyle = stage ? getStageStyle(stage) : null;
 
   return (
@@ -52,8 +56,11 @@ export function StageSelect({
         disabled={disabled}
         size={size}
         onChange={(next) => {
-          const value = next ?? "";
-          if (value !== stage) onChange(value);
+          if (!next) {
+            if (allowEmpty && stage) onChange("");
+            return;
+          }
+          if (next !== stage) onChange(next);
         }}
         options={options}
         triggerClassName={cn(

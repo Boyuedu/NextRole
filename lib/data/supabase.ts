@@ -23,6 +23,7 @@ import {
 } from "@/lib/storage/resume";
 import type { TrackerRepository, TrackerSnapshot } from "@/lib/data/types";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { logSupabaseError } from "@/lib/supabase/errors";
 import { requireUser, requireUserId } from "@/lib/supabase/session";
 import {
   buildResumeStoragePath,
@@ -658,7 +659,10 @@ export function createSupabaseRepository(): TrackerRepository {
           })
         )
         .eq("id", id);
-      if (error) throw error;
+      if (error) {
+        logSupabaseError("applications.update", error);
+        throw error;
+      }
       await replaceTags(id, fields.tagIds, userId);
       const snapshot = await loadSnapshot();
       const updated = snapshot.applications.find(
@@ -688,16 +692,36 @@ export function createSupabaseRepository(): TrackerRepository {
       return updated;
     },
     async setStage(id: string, stage: string) {
-      const supabase = getSupabaseClient();
       const nextStage = stage.trim();
-      const { error } = await supabase
+      if (!nextStage) {
+        const snapshot = await loadSnapshot();
+        const current = snapshot.applications.find(
+          (application) => application.id === id
+        );
+        if (!current) throw new Error("Application not found.");
+        return current;
+      }
+      const supabase = getSupabaseClient();
+      const nextStatus = getStatusForStage(nextStage);
+      const { data, error } = await supabase
         .from("applications")
         .update({
           stage: nextStage,
-          status: getStatusForStage(nextStage),
+          status: nextStatus,
         })
-        .eq("id", id);
-      if (error) throw error;
+        .eq("id", id)
+        .select("id, stage, status")
+        .maybeSingle();
+      if (error) {
+        logSupabaseError("applications.update.stage", error);
+        throw error;
+      }
+      if (!data) {
+        logSupabaseError("applications.update.stage", {
+          message: "No application row returned from stage update.",
+        });
+        throw new Error("Application not found.");
+      }
       const snapshot = await loadSnapshot();
       const updated = snapshot.applications.find(
         (application) => application.id === id
@@ -1061,5 +1085,8 @@ async function applyApplicationOptions(
     .from("applications")
     .update(patch)
     .eq("id", applicationId);
-  if (error) throw error;
+  if (error) {
+    logSupabaseError("applications.update.event-options", error);
+    throw error;
+  }
 }

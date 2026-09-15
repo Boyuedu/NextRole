@@ -11,6 +11,7 @@ import type { TrackerBackup } from "@/lib/backup";
 import { getRepository, resetRepository } from "@/lib/data";
 import type { TrackerRepository, TrackerSnapshot } from "@/lib/data/types";
 import { isMissingAuthSession } from "@/lib/supabase/session";
+import { logSupabaseError } from "@/lib/supabase/errors";
 import type {
   ApplicationEventInput,
   ApplicationInput,
@@ -173,7 +174,7 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
         await refresh();
         return result;
       } catch (error) {
-        console.error(error);
+        logSupabaseError("tracker.run", error);
         throw error;
       }
     },
