@@ -246,7 +246,7 @@ export const zh: Messages = {
 };
 
 export const zhStages: Record<string, string> = {
-  Saved: "已收藏",
+  Saved: "备选",
   Preparing: "准备中",
   Applied: "已投递",
   OA: "OA",

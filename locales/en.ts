@@ -255,7 +255,7 @@ export type MessageKey = keyof typeof en;
 export type Messages = Record<MessageKey, string>;
 
 export const enStages: Record<string, string> = {
-  Saved: "Saved",
+  Saved: "Shortlisted",
   Preparing: "Preparing",
   Applied: "Applied",
   OA: "OA",
