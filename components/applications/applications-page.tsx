@@ -13,6 +13,7 @@ import { useIsClient } from "@/hooks/use-is-client";
 import { useTracker } from "@/hooks/use-tracker";
 import { emptyApplicationInput } from "@/lib/application-input";
 import { applicationFunctionLabel, categoryLabel } from "@/lib/classifications";
+import { statusLabelKey } from "@/lib/constants";
 import {
   applyListFilters,
   buildListHref,
@@ -117,11 +118,9 @@ export function ApplicationsPage() {
       ? regionName
       : functionName
         ? functionName
-        : filters.status === "active"
-          ? t("active")
-          : filters.status === "ended"
-            ? t("ended")
-            : t("applications");
+        : filters.status
+          ? t(statusLabelKey(filters.status))
+          : t("applications");
 
   const empty = emptyStateMessage(filters, search, t, applications.length);
 
@@ -229,12 +228,23 @@ function emptyStateMessage(
     | "noApplications"
     | "noApplicationsYet"
     | "noActiveApplications"
+    | "noNotStartedApplications"
     | "noEndedApplications"
     | "noArchivedApplications") => string,
   totalCount: number
 ) {
   if (filters.archived && !search && !filters.regionId && !filters.functionId && !filters.stage && !filters.status && filters.tagIds.length === 0) {
     return { title: t("noArchivedApplications"), description: t("emptyArchived") };
+  }
+  if (
+    filters.status === "not_started" &&
+    !search &&
+    !filters.regionId &&
+    !filters.functionId &&
+    !filters.stage &&
+    filters.tagIds.length === 0
+  ) {
+    return { title: t("noNotStartedApplications"), description: t("emptySearch") };
   }
   if (
     filters.status === "active" &&

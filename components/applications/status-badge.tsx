@@ -3,6 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/hooks/use-i18n";
 import { getStageStyle } from "@/lib/stage-style";
+import { getStatusStyle } from "@/lib/status-style";
+import { statusLabelKey } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ApplicationSection } from "@/types";
 
@@ -11,13 +13,9 @@ export function StatusBadge({ status }: { status: ApplicationSection }) {
   return (
     <Badge
       variant="outline"
-      className={cn(
-        status === "active"
-          ? "border-blue-100 bg-blue-50 text-blue-700"
-          : "border-zinc-200 bg-zinc-100 text-zinc-600"
-      )}
+      className={cn("font-medium", getStatusStyle(status).badge)}
     >
-      {status === "active" ? t("active") : t("ended")}
+      {t(statusLabelKey(status))}
     </Badge>
   );
 }

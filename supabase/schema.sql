@@ -74,7 +74,7 @@ create table if not exists public.applications (
   location text,
   region_id uuid references public.categories(id) on delete set null,
   function_id uuid references public.categories(id) on delete set null,
-  status text not null default 'active' check (status in ('active', 'ended')),
+  status text not null default 'not_started' check (status in ('not_started', 'active', 'ended')),
   stage text not null default 'Saved',
   job_type text,
   applied_date date,

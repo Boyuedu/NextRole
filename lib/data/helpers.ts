@@ -60,6 +60,7 @@ export function resolveApplication(
       companies.find((company) => company.id === companyId)?.name ??
       application.company,
     tagIds: application.tagIds ?? [],
+    status: getStatusForStage(application.stage),
     region:
       categories.find((category) => category.id === application.regionId)
         ?.name ?? null,

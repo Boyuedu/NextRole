@@ -25,6 +25,7 @@ Run files in `migrations/` in filename order. Do not reset the database. Do not 
 | `20260918000000_companies.sql` | Companies, `company_id` |
 | `20260919000000_application_snapshots.sql` | Snapshots and `application-resumes` bucket |
 | `20260920000000_auth_rls.sql` | `user_id` ownership and private resume path policies |
+| `20260921000000_application_status_not_started.sql` | `not_started` status and Saved/Preparing backfill |
 
 `schema.sql` is the current full schema. Migrations are the additive history for databases that already exist.
 

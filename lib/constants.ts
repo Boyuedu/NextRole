@@ -1,8 +1,8 @@
 import type { ApplicationSection } from "@/types";
 
+export const NOT_STARTED_STAGES = ["Saved", "Preparing"] as const;
+
 export const ACTIVE_STAGES = [
-  "Saved",
-  "Preparing",
   "Applied",
   "OA",
   "Interview 1",
@@ -20,7 +20,17 @@ export const TERMINAL_STAGES = [
   "Not Interested",
 ] as const;
 
-export const DEFAULT_STAGES = [...ACTIVE_STAGES, ...TERMINAL_STAGES] as const;
+export const DEFAULT_STAGES = [
+  ...NOT_STARTED_STAGES,
+  ...ACTIVE_STAGES,
+  ...TERMINAL_STAGES,
+] as const;
+
+export const APPLICATION_STATUSES = [
+  "not_started",
+  "active",
+  "ended",
+] as const;
 
 export const JOB_TYPES = [
   "Full-time",
@@ -56,6 +66,9 @@ export const INTERVIEWING_STATS_STAGES = [
   "Final Interview",
 ] as const;
 
+const NOT_STARTED_STAGE_LOOKUP = new Set(
+  NOT_STARTED_STAGES.map((stage) => stage.toLowerCase())
+);
 const TERMINAL_STAGE_LOOKUP = new Set(
   TERMINAL_STAGES.map((stage) => stage.toLowerCase())
 );
@@ -65,9 +78,24 @@ const ACTIVE_STAGE_LOOKUP = new Set(
 const APPLIED_STATS_LOOKUP = new Set<string>(APPLIED_STATS_STAGES);
 const INTERVIEWING_STATS_LOOKUP = new Set<string>(INTERVIEWING_STATS_STAGES);
 
+export function isApplicationStatus(
+  value: string | null | undefined
+): value is ApplicationSection {
+  return value === "not_started" || value === "active" || value === "ended";
+}
+
+export function statusLabelKey(
+  status: ApplicationSection
+): "notStarted" | "active" | "ended" {
+  if (status === "not_started") return "notStarted";
+  if (status === "ended") return "ended";
+  return "active";
+}
+
 export function getStatusForStage(stage: string): ApplicationSection {
   const normalized = stage.trim().toLowerCase();
-  if (!normalized) return "active";
+  if (!normalized) return "not_started";
+  if (NOT_STARTED_STAGE_LOOKUP.has(normalized)) return "not_started";
   if (TERMINAL_STAGE_LOOKUP.has(normalized)) return "ended";
   if (ACTIVE_STAGE_LOOKUP.has(normalized)) return "active";
   if (

@@ -10,7 +10,7 @@ export function emptyApplicationInput(): ApplicationInput {
     regionId: "",
     functionId: "",
     tagIds: [],
-    status: "active",
+    status: "not_started",
     stage: "Saved",
     jobType: "",
     appliedDate: todayInputValue(),

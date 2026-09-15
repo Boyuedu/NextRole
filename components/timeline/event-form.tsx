@@ -222,7 +222,9 @@ export function EventForm({
           <span>
             {statusSuggestion === "ended"
               ? t("setStatusToEnded")
-              : t("setStatusToActive")}
+              : statusSuggestion === "not_started"
+                ? t("setStatusToNotStarted")
+                : t("setStatusToActive")}
           </span>
         </label>
       ) : null}

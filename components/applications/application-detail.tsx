@@ -213,7 +213,7 @@ export function ApplicationDetailPage() {
           />
           <DetailItem
             label={t("status")}
-            value={application.status === "active" ? t("active") : t("ended")}
+            value={<StatusBadge status={application.status} />}
           />
           <DetailItem label={t("resumeUsed")} value={application.resumeUsed} />
           <DetailItem

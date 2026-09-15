@@ -11,7 +11,7 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useTracker } from "@/hooks/use-tracker";
 import { labeledCategoryOptions, findCategoryByTypedName } from "@/lib/classifications";
 import { findCompanyByName, sortCompanies } from "@/lib/companies";
-import { JOB_TYPES, getStatusForStage } from "@/lib/constants";
+import { APPLICATION_STATUSES, JOB_TYPES, getStatusForStage, statusLabelKey } from "@/lib/constants";
 import type { ApplicationInput, ApplicationSection, CategoryType } from "@/types";
 import type { MessageKey } from "@/locales/en";
 import Link from "next/link";
@@ -205,12 +205,12 @@ export function ApplicationForm({
           <LabeledSelect
             value={value.status}
             onChange={(status) =>
-              update("status", (status as ApplicationSection) ?? "active")
+              update("status", (status as ApplicationSection) ?? "not_started")
             }
-            options={[
-              { id: "active", name: t("active") },
-              { id: "ended", name: t("ended") },
-            ]}
+            options={APPLICATION_STATUSES.map((status) => ({
+              id: status,
+              name: t(statusLabelKey(status)),
+            }))}
             allowEmpty={false}
           />
         </div>

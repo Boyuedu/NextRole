@@ -98,6 +98,18 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             onClick={onNavigate}
           />
           <NavLink
+            href={buildListHref({ status: "not_started" })}
+            label={t("notStarted")}
+            active={
+              onHome &&
+              filters.status === "not_started" &&
+              !filters.archived &&
+              !filters.regionId &&
+              !filters.functionId
+            }
+            onClick={onNavigate}
+          />
+          <NavLink
             href={buildListHref({ status: "active" })}
             label={t("active")}
             active={

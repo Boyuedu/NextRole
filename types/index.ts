@@ -1,4 +1,4 @@
-export type ApplicationSection = "active" | "ended";
+export type ApplicationSection = "not_started" | "active" | "ended";
 export type CategoryType = "region" | "function";
 export type FunctionKey =
   | "rd"

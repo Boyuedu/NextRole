@@ -12,6 +12,7 @@ import {
 import { useI18n } from "@/hooks/use-i18n";
 import { useTracker } from "@/hooks/use-tracker";
 import { labeledCategoryOptions } from "@/lib/classifications";
+import { APPLICATION_STATUSES, isApplicationStatus, statusLabelKey } from "@/lib/constants";
 import { buildListHref } from "@/lib/filters";
 import type { ApplicationListFilters } from "@/types";
 import { useRouter } from "next/navigation";
@@ -72,13 +73,13 @@ export function FilterBar({
           aria-label={t("status")}
           value={filters.status}
           onChange={(status) =>
-            update({ status: status === "active" || status === "ended" ? status : null })
+            update({ status: isApplicationStatus(status) ? status : null })
           }
-          options={[
-            { id: "active", name: t("active") },
-            { id: "ended", name: t("ended") },
-          ]}
-          emptyLabel={t("status")}
+          options={APPLICATION_STATUSES.map((status) => ({
+            id: status,
+            name: t(statusLabelKey(status)),
+          }))}
+          emptyLabel={t("allStatuses")}
           triggerClassName="h-8"
         />
         <Popover>

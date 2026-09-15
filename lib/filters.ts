@@ -1,4 +1,5 @@
 import {
+  isApplicationStatus,
   isAppliedStatsStage,
   isInterviewingStage,
   isOfferStage,
@@ -75,7 +76,7 @@ export function parseListQuery(params: URLSearchParams): ApplicationListFilters 
   const tags = params.get("tags");
   return {
     search: params.get("q") ?? "",
-    status: status === "active" || status === "ended" ? status : null,
+    status: isApplicationStatus(status) ? status : null,
     archived: params.get("archived") === "1",
     regionId: params.get("region"),
     functionId: params.get("function"),
