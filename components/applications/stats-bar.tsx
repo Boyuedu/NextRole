@@ -4,19 +4,19 @@ import { useI18n } from "@/hooks/use-i18n";
 
 export function StatsBar({
   total,
-  active,
+  applied,
   interviewing,
   offers,
 }: {
   total: number;
-  active: number;
+  applied: number;
   interviewing: number;
   offers: number;
 }) {
   const { t, locale } = useI18n();
   const items = [
     { key: "total", label: t("total"), value: total },
-    { key: "active", label: t("active"), value: active },
+    { key: "applied", label: t("statsApplied"), value: applied },
     { key: "interviewing", label: t("interviewing"), value: interviewing },
     { key: "offers", label: t("offers"), value: offers },
   ];

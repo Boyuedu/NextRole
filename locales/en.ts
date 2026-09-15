@@ -23,6 +23,7 @@ export const en = {
   searchApplications: "Search applications",
   searchPlaceholder: "Search applications...",
   total: "Total",
+  statsApplied: "Applied",
   interviewing: "Interviewing",
   offers: "Offers",
   company: "Company",

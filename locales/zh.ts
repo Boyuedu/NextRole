@@ -25,6 +25,7 @@ export const zh: Messages = {
   searchApplications: "搜索岗位",
   searchPlaceholder: "搜索岗位",
   total: "总计",
+  statsApplied: "已投递",
   interviewing: "面试中",
   offers: "录用",
   company: "公司",

@@ -1,4 +1,8 @@
-import { isInterviewingStage, isOfferStage } from "@/lib/constants";
+import {
+  isAppliedStatsStage,
+  isInterviewingStage,
+  isOfferStage,
+} from "@/lib/constants";
 import type { Application, ApplicationListFilters } from "@/types";
 
 export function applyListFilters(
@@ -53,14 +57,15 @@ export function sortApplications(applications: Application[]) {
 
 export function getApplicationStats(applications: Application[]) {
   const visible = applications.filter((application) => !application.archived);
-  const active = visible.filter((application) => application.status === "active");
   return {
     total: visible.length,
-    active: active.length,
-    interviewing: active.filter((application) =>
+    applied: visible.filter((application) =>
+      isAppliedStatsStage(application.stage)
+    ).length,
+    interviewing: visible.filter((application) =>
       isInterviewingStage(application.stage)
     ).length,
-    offers: active.filter((application) => isOfferStage(application.stage))
+    offers: visible.filter((application) => isOfferStage(application.stage))
       .length,
   };
 }

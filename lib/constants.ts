@@ -47,12 +47,23 @@ export const DEFAULT_EVENT_TYPES = [
   "Other",
 ] as const;
 
+export const APPLIED_STATS_STAGES = ["Applied", "OA"] as const;
+
+export const INTERVIEWING_STATS_STAGES = [
+  "Interview 1",
+  "Interview 2",
+  "Interview 3",
+  "Final Interview",
+] as const;
+
 const TERMINAL_STAGE_LOOKUP = new Set(
   TERMINAL_STAGES.map((stage) => stage.toLowerCase())
 );
 const ACTIVE_STAGE_LOOKUP = new Set(
   ACTIVE_STAGES.map((stage) => stage.toLowerCase())
 );
+const APPLIED_STATS_LOOKUP = new Set<string>(APPLIED_STATS_STAGES);
+const INTERVIEWING_STATS_LOOKUP = new Set<string>(INTERVIEWING_STATS_STAGES);
 
 export function getStatusForStage(stage: string): ApplicationSection {
   const normalized = stage.trim().toLowerCase();
@@ -69,10 +80,14 @@ export function getStatusForStage(stage: string): ApplicationSection {
   return "active";
 }
 
+export function isAppliedStatsStage(stage: string) {
+  return APPLIED_STATS_LOOKUP.has(stage);
+}
+
 export function isInterviewingStage(stage: string) {
-  return /interview|oa/i.test(stage);
+  return INTERVIEWING_STATS_LOOKUP.has(stage);
 }
 
 export function isOfferStage(stage: string) {
-  return /offer/i.test(stage) && !/declined|rejected/i.test(stage);
+  return stage === "Offer";
 }
